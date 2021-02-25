@@ -23,9 +23,9 @@ class FIGHT_API IInteractionInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Trigger Reaction")
-		void OnInteracted(const class ASoldier* Player);
+		void OnInteracted(class ASoldier* Player);
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Trigger Reaction")
-		void OnInteractionRangeEntered(const class ASoldier* Player);
+		void OnInteractionRangeEntered(class ASoldier* Player);
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Trigger Reaction")
 		void OnInteractionRangeExited();
 };

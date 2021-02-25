@@ -32,6 +32,8 @@ public:
 		void MoveRight(float value);
 	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
 		void ChangeDirection(float value);
+	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
+		void ActionInteract();
 
 	UFUNCTION(BlueprintCallable, Category = "Utilities")
 		float CalculateDirection(const FVector& Velocity, const FRotator& Rotation);
@@ -40,6 +42,29 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		float BaseTurnRate = 45.f;
+
+	// Weapon realted functions
+	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
+		void PickUpWeapon(class AWeaponBase* weapon);
+	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
+		void Fire();
+	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
+		void StopFire();
+	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
+		void ReloadWeaponClip(int32 BulletNum);
+	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
+		void ReloadWeaponClipDone();
+	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
+		void SetFirestatus(bool Fireable);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PlayerActions")
+		class AWeaponBase* PrimaryWeapon;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PlayerActions")
+		bool IsFireable = true;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PlayerActions")
+		bool IsFire = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PlayerActions")
+		bool IsAiming = false;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

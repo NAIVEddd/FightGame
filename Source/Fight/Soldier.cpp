@@ -2,6 +2,7 @@
 
 
 #include "Soldier.h"
+#include "WeaponBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -72,6 +73,17 @@ void ASoldier::ChangeDirection(float value)
 	AddActorLocalRotation(FQuat(FRotator(0.f, yaw, 0.f)));
 }
 
+void ASoldier::ActionInteract()
+{
+	TArray<AActor*> OverlapActors;
+	GetCapsuleComponent()->GetOverlappingActors(OverlapActors, TSubclassOf<AWeaponBase>(AWeaponBase::StaticClass()));
+	for (AActor* weapon : OverlapActors)
+	{
+		IInteractionInterface* Interaction = Cast<IInteractionInterface>(weapon);
+		Interaction->Execute_OnInteracted(weapon, this);
+	}
+}
+
 float ASoldier::CalculateDirection(const FVector& Velocity, const FRotator& Rotation)
 {
 	const FVector right = FRotationMatrix(Rotation).GetUnitAxis(EAxis::Y);
@@ -93,6 +105,60 @@ float ASoldier::CalculateSpeed(const FVector& Velocity, const FRotator& Rotation
 		return speed;
 	}
 	return -speed;
+}
+
+void ASoldier::PickUpWeapon(AWeaponBase* weapon)
+{
+	if (IsValid(PrimaryWeapon))
+	{
+		PrimaryWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		//PrimaryWeapon->DropWeapon();
+	}
+	PrimaryWeapon = weapon;
+	PrimaryWeapon->AttachToComponent(GetMesh(),
+		FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("WeaponHoldSocket"));
+}
+
+void ASoldier::Fire()
+{
+	if (IsFireable)
+	{
+		// do something.
+		if (IsValid(PrimaryWeapon))
+		{
+			IsFire = true;
+			PrimaryWeapon->Shoot(this);
+		}
+	}
+}
+
+void ASoldier::StopFire()
+{
+	if (IsFire && IsValid(PrimaryWeapon))
+	{
+		IsFire = false;
+		PrimaryWeapon->StopShoot();
+	}
+}
+
+void ASoldier::ReloadWeaponClip(int32 BulletNum)
+{
+	StopFire();
+	SetFirestatus(false);
+}
+
+void ASoldier::ReloadWeaponClipDone()
+{
+	SetFirestatus(true);
+}
+
+void ASoldier::SetFirestatus(bool Fireable)
+{
+	IsFireable = Fireable;
+	if (!Fireable && IsFire)
+	{
+		StopFire();
+	}
 }
 
 // Called when the game starts or when spawned
@@ -118,6 +184,8 @@ void ASoldier::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	InputComponent->BindAxis("MoveForward", this, &ASoldier::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &ASoldier::MoveRight);
 	InputComponent->BindAxis("Turn", this, &ASoldier::ChangeDirection);
-	//InputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	InputComponent->BindAction("Interact", IE_Pressed, this, &ASoldier::ActionInteract);
+	InputComponent->BindAction("Fire", IE_Pressed, this, &ASoldier::Fire);
+	InputComponent->BindAction("Fire", IE_Released, this, &ASoldier::StopFire);
 }
 
