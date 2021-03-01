@@ -3,10 +3,12 @@
 
 #include "Soldier.h"
 #include "WeaponBase.h"
+#include "HealthBar.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -45,6 +47,12 @@ ASoldier::ASoldier()
 	CameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;	// Camera does not rotate relative to arm
 	CameraComponent->SetRelativeRotation(FRotator(15.f, 0.f, 0.f));
+
+	HealthWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
+	HealthWidgetComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	
+	Health = 100.f;
+	MaxHealth = 100.f;
 }
 
 void ASoldier::MoveForward(float value)
@@ -166,6 +174,12 @@ void ASoldier::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	UHealthBar* healthbar = Cast<UHealthBar>(HealthWidgetComp->GetUserWidgetObject());
+	if (IsValid(healthbar))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("get HealthBar success."));
+		healthbar->SetOwner(this);
+	}
 }
 
 // Called every frame
@@ -189,3 +203,13 @@ void ASoldier::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	InputComponent->BindAction("Fire", IE_Released, this, &ASoldier::StopFire);
 }
 
+void ASoldier::GetDamage(float damage)
+{
+	Health -= damage;
+	if (Health < 0.f)
+	{
+		IsDead = true;
+		GetCapsuleComponent()->Deactivate();
+		GetCharacterMovement()->DisableMovement();
+	}
+}

@@ -2,6 +2,8 @@
 
 
 #include "BulletBase.h"
+#include "Soldier.h"
+#include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
 #include "Components/PointLightComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -14,6 +16,7 @@ ABulletBase::ABulletBase()
 
 	BulletSphere = CreateDefaultSubobject<USphereComponent>(TEXT("BulletSphere"));
 	BulletSphere->InitSphereRadius(1.f);
+	//BulletSphere->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	BulletSphere->SetupAttachment(RootComponent);
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
@@ -34,6 +37,7 @@ ABulletBase::ABulletBase()
 void ABulletBase::BeginPlay()
 {
 	Super::BeginPlay();
+	BulletSphere->OnComponentBeginOverlap.AddDynamic(this, &ABulletBase::BulletHasCollide);
 }
 
 // Called every frame
@@ -46,5 +50,25 @@ void ABulletBase::Tick(float DeltaTime)
 void ABulletBase::SetVelocity(const FVector& velocity)
 {
 	ProjectileMovement->Velocity = velocity;
+}
+
+void ABulletBase::BulletHasCollide(class UPrimitiveComponent* OverlappedComp,
+	class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if ( OtherActor == this || OtherActor->ActorHasTag(TEXT("Player")))
+	{
+		return;
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("Hit Enemy"));
+	if (IsValid(OverlappedComp) && OtherActor->ActorHasTag(TEXT("Enemy")))
+	{
+		ASoldier* soldier = Cast<ASoldier>(OtherActor);
+		if(IsValid(soldier))
+		{
+			soldier->GetDamage(13.f);
+		}
+	}
+	Destroy();
 }
 

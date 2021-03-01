@@ -26,7 +26,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Bullet Motion")
 		void SetVelocity(const FVector& velocity);
 
+	UFUNCTION()
+	void BulletHasCollide(class UPrimitiveComponent* OverlappedComp,
+		class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 private:
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BulletComponent,
 		meta = (AllowPrivateAccess = "true"))
 		class UStaticMeshComponent* StaticMesh;

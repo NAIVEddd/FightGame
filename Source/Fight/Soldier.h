@@ -65,9 +65,16 @@ public:
 		bool IsFire = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PlayerActions")
 		bool IsAiming = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PlayerActions")
+		bool IsDead = false;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	float Health;
+	float MaxHealth;
+	UPROPERTY(VisibleAnywhere)
+		class UWidgetComponent* HealthWidgetComp;
 
 public:	
 	// Called every frame
@@ -75,5 +82,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	float GetHealth() const { return Health; }
+	float GetMaxHealth() const { return MaxHealth; }
+	void GetDamage(float damage);
 };
