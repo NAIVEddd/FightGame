@@ -73,7 +73,7 @@ protected:
 
 	float Health;
 	float MaxHealth;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class UWidgetComponent* HealthWidgetComp;
 
 public:	
@@ -82,7 +82,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	float GetHealth() const { return Health; }
+	UFUNCTION(BlueprintCallable)
+		float GetHealth() const { return Health; }
 	float GetMaxHealth() const { return MaxHealth; }
 	void GetDamage(float damage);
 };

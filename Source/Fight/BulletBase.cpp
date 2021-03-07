@@ -49,7 +49,10 @@ void ABulletBase::Tick(float DeltaTime)
 
 void ABulletBase::SetVelocity(const FVector& velocity)
 {
-	ProjectileMovement->Velocity = velocity;
+	if (IsValid(this))
+	{
+		ProjectileMovement->Velocity = velocity;
+	}
 }
 
 void ABulletBase::BulletHasCollide(class UPrimitiveComponent* OverlappedComp,

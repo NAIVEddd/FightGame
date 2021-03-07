@@ -85,11 +85,12 @@ void AWeaponBase::Tick(float DeltaTime)
 
 			FVector location = m_Player->GetActorLocation();
 			FVector forward = m_Player->GetActorForwardVector();
+			FRotator rotator = m_Player->GetViewRotation();
 			FVector gunheadLocation = location;	// location from gun mesh
 			FVector endLocation = forward * 1000.f + location;
 			FVector bulletVelocity = (endLocation - gunheadLocation).GetSafeNormal() * 10000.f;
 
-			ABulletBase* bullet = Cast<ABulletBase>(GetWorld()->SpawnActor(BulletClass.Get(), &gunheadLocation));
+			ABulletBase* bullet = Cast<ABulletBase>(GetWorld()->SpawnActor(BulletClass.Get(), &gunheadLocation, &rotator));
 			bullet->SetVelocity(bulletVelocity);
 		}
 	} while (false);
